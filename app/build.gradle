@@ -1,0 +1,62 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao' // apply plugin
+def enableProguardInReleaseBuilds = false
+android {
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
+    signingConfigs {
+        wa_android_keystore {
+            keyAlias 'yonyou'
+            keyPassword 'yonyou'
+            storePassword 'yonyou'
+            storeFile file('keystore.jks')
+        }
+    }
+    defaultConfig {
+        applicationId "com.yyyl.show"
+        minSdkVersion 15
+        targetSdkVersion 27
+        versionCode 1
+        versionName "0.0.1"
+    }
+    buildTypes {
+        release {
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            defaultConfig {
+                signingConfig signingConfigs.wa_android_keystore
+            }
+        }
+        debug {
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+    productFlavors {
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            // For each separate APK per architecture, set a unique version code as described here:
+            // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
+            def versionCodes = ["armeabi-v7a": 1, "x86": 2]
+            def abi = output.getFilter(com.android.build.OutputFile.ABI)
+            if (abi != null) {  // null for the universal-debug, universal-release variants
+                output.versionCodeOverride =
+                        versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
+            }
+        }
+    }
+}
+
+dependencies {
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    api project(':QRCodeLibrary')
+    api project(':ZBLibrary')
+    implementation 'org.greenrobot:greendao:3.3.0' // add library
+}
